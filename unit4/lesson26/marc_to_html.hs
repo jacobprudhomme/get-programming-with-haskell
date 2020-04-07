@@ -6,6 +6,7 @@
 import Data.Maybe
 
 import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.IO as TIO
@@ -78,6 +79,10 @@ rawToInt = read . T.unpack . TE.decodeUtf8
 
 getRecordLen :: MarcLeaderRaw -> Int
 getRecordLen leader = rawToInt $ B.take 5 leader
+
+getCharCodeScheme :: MarcLeaderRaw -> Char
+getCharCodeScheme leader = charCodeScheme
+  where charCodeScheme = BC.head $ B.drop 9 leader
 
 nextRecordAndRest :: B.ByteString -> (MarcRecordRaw,B.ByteString)
 nextRecordAndRest marcStream = B.splitAt recordLen marcStream
@@ -162,6 +167,9 @@ titleTag = "245"
 titleSubfield :: Char
 titleSubfield = 'a'
 
+subtitleSubfield :: Char
+subtitleSubfield = 'b'
+
 authorTag :: T.Text
 authorTag = "100"
 
@@ -196,14 +204,26 @@ lookupVal aTag subfield record =
 lookupTitle :: MarcRecordRaw -> Maybe Title
 lookupTitle = lookupVal titleTag titleSubfield
 
+lookupSubtitle :: MarcRecordRaw -> Maybe Title
+lookupSubtitle = lookupVal titleTag subtitleSubfield
+
 lookupAuthor :: MarcRecordRaw -> Maybe Author
 lookupAuthor = lookupVal authorTag authorSubfield
 
+buildTitle :: Maybe Title -> Maybe Title -> Maybe Title
+buildTitle title subtitle
+  | isJust title && isJust subtitle = (<>) <$> title <*> subtitle
+  | isJust title                    = title
+  | isJust subtitle                 = subtitle
+  | otherwise                       = Nothing
+
 marcToPairs :: B.ByteString -> [(Maybe Title,Maybe Author)]
-marcToPairs marcStream = zip titles authors
+marcToPairs marcStream = zip properTitles authors
   where
     records = allRecords marcStream
     titles = map lookupTitle records
+    subtitles = map lookupSubtitle records
+    properTitles = zipWith buildTitle titles subtitles
     authors = map lookupAuthor records
 
 pairsToBooks :: [(Maybe Title,Maybe Author)] -> [Book]
