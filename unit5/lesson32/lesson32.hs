@@ -1,6 +1,7 @@
 #!/usr/bin/env stack
 -- stack ghci --resolver lts-14.20
 
+import Control.Applicative
 import Control.Monad
 import Data.Char
 
@@ -80,7 +81,22 @@ filter' pred xs = do
   guard $ pred x
   return x
 
--- guard :: Alternative f => Bool -> f ()
+-- This leads me to believe that guard "cancels" the chain
+-- of operations by returning Nothing/[]/etc., which then
+-- causes >> to return the same thing down the entire chain
+evensGuard'' :: Int -> [Int]
+evensGuard'' n = [1..n] >>= (\value -> guard (even value) >> return value)
+
+-- My attempt at writing it myself
+guard' :: Alternative f => Bool -> f ()
+guard' cond = if cond then pure () else empty  -- I found empty in Alternative
+
+-- Test my implementation out
+evensGuard''' :: Int -> [Int]
+evensGuard''' n = do
+  value <- [1..n]
+  guard' $ even value
+  return value
 
 -- This corresponds to [n**2 for n in range(10) if n**2 % 2 == 0]
 evenSquares :: [Int]
