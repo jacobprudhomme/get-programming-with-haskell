@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack exec ghci --resolver lts-14.20
+-- stack ghci --resolver lts-14.20
 
 type FirstName = String
 type LastName  = String

@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack exec ghci --resolver lts-14.20
+-- stack ghci --resolver lts-14.20
 
 
 example1 = (*) <$> Just 6 <*> Just 7

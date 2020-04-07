@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack exec ghci --resolver lts-14.20
+-- stack ghci --resolver lts-14.20
 
 robot (name,attack,hp) = \message -> message (name,attack,hp)
 

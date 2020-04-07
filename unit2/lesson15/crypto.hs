@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack exec ghci --resolver lts-14.20
+-- stack ghci --resolver lts-14.20
 
 data FourLetterAlph = L1 | L2 | L3 | L4 deriving (Bounded, Enum, Show)
 

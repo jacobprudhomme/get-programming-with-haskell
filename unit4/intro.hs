@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack exec ghci --resolver lts-14.20
+-- stack ghci --resolver lts-14.20
 
 mystery1 :: Int -> Int -> Int
 mystery1 val1 val2 = (val1 + val2 + val3)^2
